@@ -41,45 +41,6 @@ services:
     networks:
       - friend-status-network
 
-  redis-node-4:
-    image: redis:7-alpine
-    container_name: redis-node-4
-    command: redis-server /usr/local/etc/redis/redis.conf
-    ports:
-      - "7004:6379"
-      - "17004:16379"
-    volumes:
-      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
-      - redis-node-4-data:/data
-    networks:
-      - friend-status-network
-
-  redis-node-5:
-    image: redis:7-alpine
-    container_name: redis-node-5
-    command: redis-server /usr/local/etc/redis/redis.conf
-    ports:
-      - "7005:6379"
-      - "17005:16379"
-    volumes:
-      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
-      - redis-node-5-data:/data
-    networks:
-      - friend-status-network
-
-  redis-node-6:
-    image: redis:7-alpine
-    container_name: redis-node-6
-    command: redis-server /usr/local/etc/redis/redis.conf
-    ports:
-      - "7006:6379"
-      - "17006:16379"
-    volumes:
-      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
-      - redis-node-6-data:/data
-    networks:
-      - friend-status-network
-
   # Redis 클러스터 초기화
   redis-cluster-init:
     image: redis:7-alpine
@@ -89,16 +50,12 @@ services:
         "sh", "-c",
         "sleep 10 && echo yes | redis-cli --cluster create \
           redis-node-1:6379 redis-node-2:6379 redis-node-3:6379 \
-          redis-node-4:6379 redis-node-5:6379 redis-node-6:6379 \
-          --cluster-replicas 1"
+          --cluster-replicas 0"
       ]
     depends_on:
       - redis-node-1
       - redis-node-2
       - redis-node-3
-      - redis-node-4
-      - redis-node-5
-      - redis-node-6
     networks:
       - friend-status-network
 
@@ -110,7 +67,7 @@ services:
       - "3001:3000"
     environment:
       - SERVER_ID=websocket-server-1
-      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
       - PORT=3000
     depends_on:
       - redis-cluster-init
@@ -124,7 +81,7 @@ services:
       - "3002:3000"
     environment:
       - SERVER_ID=websocket-server-2
-      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
       - PORT=3000
     depends_on:
       - redis-cluster-init
@@ -138,7 +95,7 @@ services:
       - "3003:3000"
     environment:
       - SERVER_ID=websocket-server-3
-      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
       - PORT=3000
     depends_on:
       - redis-cluster-init
@@ -226,9 +183,6 @@ volumes:
   redis-node-1-data:
   redis-node-2-data:
   redis-node-3-data:
-  redis-node-4-data:
-  redis-node-5-data:
-  redis-node-6-data:
   postgres-data:
   redis-insight-data:
   prometheus-data:

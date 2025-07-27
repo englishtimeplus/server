@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # WebSocket 서버 3개
+  websocket-server-1:
+    build: .
+    container_name: websocket-server-1
+    ports:
+      - "3001:3000"
+    environment:
+      - SERVER_ID=websocket-server-1
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - PORT=3000
+    depends_on:
+      - redis-cluster-init
+    networks:
+      - friend-status-network
+
+  websocket-server-2:
+    build: .
+    container_name: websocket-server-2
+    ports:
+      - "3002:3000"
+    environment:
+      - SERVER_ID=websocket-server-2
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - PORT=3000
+    depends_on:
+      - redis-cluster-init
+    networks:
+      - friend-status-network
+
+  websocket-server-3:
+    build: .
+    container_name: websocket-server-3
+    ports:
+      - "3003:3000"
+    environment:
+      - SERVER_ID=websocket-server-3
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - PORT=3000
+    depends_on:
+      - redis-cluster-init
+    networks:
+      - friend-status-network
+
+networks:
+  friend-status-network:
+    driver: bridge

@@ -68,11 +68,11 @@ Prometheus + Grafana 메트릭
 
 💡 사용 방법
 bash# 시스템 시작
+```
 docker 설치
 node 설치
-
 docker network create friend-status-network
-
+docker network ls
 
 # 참고
 https://github.com/nodejs/node/blob/main/BUILDING.md#platform-list
@@ -91,6 +91,6 @@ npm run test:load large   # 10,000 연결 테스트
 
 # 모니터링 확인
 # Grafana: http://localhost:3000
-
 # RedisInsight: http://localhost:8001
+```
 이 시스템은 수십만 명의 동시 사용자를 처리할 수 있도록 설계되었으며, 수평 확장이 용이하여 더 큰 규모로 성장할 수 있습니다.

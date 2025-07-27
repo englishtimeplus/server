@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Redis 클러스터 노드
+  redis-node-1:
+    image: redis:7-alpine
+    container_name: redis-node-1
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7001:6379"
+      - "17001:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-1-data:/data
+    networks:
+      - friend-status-network
+
+  redis-node-2:
+    image: redis:7-alpine
+    container_name: redis-node-2
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7002:6379"
+      - "17002:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-2-data:/data
+    networks:
+      - friend-status-network
+
+  redis-node-3:
+    image: redis:7-alpine
+    container_name: redis-node-3
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7003:6379"
+      - "17003:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-3-data:/data
+    networks:
+      - friend-status-network
+
+  # Redis 클러스터 초기화
+  redis-cluster-init:
+    image: redis:7-alpine
+    container_name: redis-cluster-init
+    command:
+      [
+        "sh", "-c",
+        "sleep 10 && echo yes | redis-cli --cluster create \
+          redis-node-1:6379 redis-node-2:6379 redis-node-3:6379 \
+          --cluster-replicas 0"
+      ]
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+    networks:
+      - friend-status-network
+
+  # RedisInsight
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "8001:8001"
+    volumes:
+      - redis-insight-data:/db
+    networks:
+      - friend-status-network
+
+networks:
+  friend-status-network:
+    driver: bridge
+
+volumes:
+  redis-node-1-data:
+  redis-node-2-data:
+  redis-node-3-data:
+  postgres-data:
+  redis-insight-data:

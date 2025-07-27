@@ -70,13 +70,17 @@ Prometheus + Grafana 메트릭
 bash# 시스템 시작
 docker 설치
 node 설치
+
+docker network create friend-status-network
+
+
 # 참고
 https://github.com/nodejs/node/blob/main/BUILDING.md#platform-list
 
 sudo apt-get install python3 g++-12 gcc-12 make python3-pip
-sudo mkdir -p /var/log/redis
-
 npm install uNetworking/uWebSockets.js#v20.52.0
+
+sudo mkdir -p /var/log/redis 
 npm install
 
 docker-compose up -d

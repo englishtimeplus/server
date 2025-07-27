@@ -82,8 +82,11 @@ npm install uNetworking/uWebSockets.js#v20.52.0
 
 sudo mkdir -p /var/log/redis 
 npm install
-
-docker-compose up -d
+실행
+docker compose -f docker-1.yml up -d
+docker compose -f docker-2.yml up -d
+docker compose -f docker-3.yml up -d 
+# docker-compose up -d
 
 # 부하 테스트 실행
 npm run test:load medium  # 1,000 연결 테스트

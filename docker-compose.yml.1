@@ -1,7 +1,8 @@
+# docker-compose.yml
 version: '3.8'
 
 services:
-  # Redis 클러스터 노드
+  # Redis 클러스터 설정 (6개 노드 - 3 마스터, 3 슬레이브)
   redis-node-1:
     image: redis:7-alpine
     container_name: redis-node-1
@@ -12,6 +13,8 @@ services:
     volumes:
       - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
       - redis-node-1-data:/data
+    environment:
+      - REDIS_NODE_ID=1
     networks:
       - friend-status-network
 
@@ -25,6 +28,8 @@ services:
     volumes:
       - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
       - redis-node-2-data:/data
+    environment:
+      - REDIS_NODE_ID=2
     networks:
       - friend-status-network
 
@@ -38,6 +43,8 @@ services:
     volumes:
       - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
       - redis-node-3-data:/data
+    environment:
+      - REDIS_NODE_ID=3
     networks:
       - friend-status-network
 
@@ -51,6 +58,8 @@ services:
     volumes:
       - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
       - redis-node-4-data:/data
+    environment:
+      - REDIS_NODE_ID=4
     networks:
       - friend-status-network
 
@@ -64,6 +73,8 @@ services:
     volumes:
       - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
       - redis-node-5-data:/data
+    environment:
+      - REDIS_NODE_ID=5
     networks:
       - friend-status-network
 
@@ -77,19 +88,23 @@ services:
     volumes:
       - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
       - redis-node-6-data:/data
+    environment:
+      - REDIS_NODE_ID=6
     networks:
       - friend-status-network
 
-  # Redis 클러스터 초기화
+  # Redis Cluster 초기화 컨테이너
   redis-cluster-init:
     image: redis:7-alpine
     container_name: redis-cluster-init
     command: >
-      sh -c "sleep 10 &&
-             echo yes | redis-cli --cluster create \
-             redis-node-1:6379 redis-node-2:6379 redis-node-3:6379 \
-             redis-node-4:6379 redis-node-5:6379 redis-node-6:6379 \
-             --cluster-replicas 1"
+      sh -c "
+        sleep 10 &&
+        redis-cli --cluster create 
+        redis-node-1:6379 redis-node-2:6379 redis-node-3:6379 
+        redis-node-4:6379 redis-node-5:6379 redis-node-6:6379 
+        --cluster-replicas 1 --cluster-yes
+      "
     depends_on:
       - redis-node-1
       - redis-node-2
@@ -100,7 +115,7 @@ services:
     networks:
       - friend-status-network
 
-  # WebSocket 서버 3개
+  # WebSocket 서버 클러스터
   websocket-server-1:
     build: .
     container_name: websocket-server-1
@@ -114,6 +129,14 @@ services:
       - redis-cluster-init
     networks:
       - friend-status-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
 
   websocket-server-2:
     build: .
@@ -128,6 +151,14 @@ services:
       - redis-cluster-init
     networks:
       - friend-status-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
 
   websocket-server-3:
     build: .
@@ -142,8 +173,16 @@ services:
       - redis-cluster-init
     networks:
       - friend-status-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
 
-  # Nginx 로드밸런서
+  # Nginx 로드 밸런서
   nginx:
     image: nginx:alpine
     container_name: nginx-lb
@@ -160,7 +199,7 @@ services:
     networks:
       - friend-status-network
 
-  # PostgreSQL
+  # PostgreSQL 데이터베이스
   postgres:
     image: postgres:15-alpine
     container_name: postgres-db
@@ -176,7 +215,7 @@ services:
     networks:
       - friend-status-network
 
-  # RedisInsight
+  # Redis 모니터링 (RedisInsight)
   redis-insight:
     image: redislabs/redisinsight:latest
     container_name: redis-insight
@@ -187,7 +226,7 @@ services:
     networks:
       - friend-status-network
 
-  # Prometheus
+  # 모니터링 시스템 (Prometheus + Grafana)
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -199,7 +238,6 @@ services:
     networks:
       - friend-status-network
 
-  # Grafana
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -231,3 +269,6 @@ volumes:
   redis-insight-data:
   prometheus-data:
   grafana-data:
+
+ 
+ 

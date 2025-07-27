@@ -1,5 +1,3 @@
-
-# init.sql - PostgreSQL 초기화 스크립트
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 사용자 테이블
@@ -31,7 +29,7 @@ CREATE INDEX idx_friendships_user_status ON friendships(user_id, status);
 
 -- 친구 관계는 양방향이므로 트리거로 자동 생성
 CREATE OR REPLACE FUNCTION create_mutual_friendship()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     IF NEW.status = 'accepted' THEN
         INSERT INTO friendships (user_id, friend_id, status, created_at, updated_at)
@@ -42,7 +40,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_mutual_friendship
     AFTER INSERT OR UPDATE ON friendships

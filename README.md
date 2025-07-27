@@ -70,7 +70,9 @@ Prometheus + Grafana 메트릭
 bash# 시스템 시작
 docker 설치
 node 설치
+npm install uNetworking/uWebSockets.js#v20.52.0
 npm install
+
 docker-compose up -d
 
 # 부하 테스트 실행

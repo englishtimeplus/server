@@ -11,7 +11,7 @@
     "cluster": "node cluster.js"
   },
   "dependencies": {
-    "uws": "^20.36.0",
+    "uNetworking/uWebSockets.js#v20.52.0": "^20.52.0",
     "ioredis": "^5.3.2",
     "jsonwebtoken": "^9.0.2",
     "bcryptjs": "^2.4.3",

@@ -68,6 +68,9 @@ Prometheus + Grafana 메트릭
 
 💡 사용 방법
 bash# 시스템 시작
+docker 설치
+node 설치
+npm install
 docker-compose up -d
 
 # 부하 테스트 실행

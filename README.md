@@ -72,6 +72,8 @@ docker 설치
 node 설치
 sudo apt install python3 make g++ -y
 
+sudo mkdir -p /var/log/redis
+
 npm install uNetworking/uWebSockets.js#v20.52.0
 npm install
 

@@ -1,0 +1,274 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Redis 클러스터 설정 (6개 노드 - 3 마스터, 3 슬레이브)
+  redis-node-1:
+    image: redis:7-alpine
+    container_name: redis-node-1
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7001:6379"
+      - "17001:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-1-data:/data
+    environment:
+      - REDIS_NODE_ID=1
+    networks:
+      - friend-status-network
+
+  redis-node-2:
+    image: redis:7-alpine
+    container_name: redis-node-2
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7002:6379"
+      - "17002:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-2-data:/data
+    environment:
+      - REDIS_NODE_ID=2
+    networks:
+      - friend-status-network
+
+  redis-node-3:
+    image: redis:7-alpine
+    container_name: redis-node-3
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7003:6379"
+      - "17003:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-3-data:/data
+    environment:
+      - REDIS_NODE_ID=3
+    networks:
+      - friend-status-network
+
+  redis-node-4:
+    image: redis:7-alpine
+    container_name: redis-node-4
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7004:6379"
+      - "17004:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-4-data:/data
+    environment:
+      - REDIS_NODE_ID=4
+    networks:
+      - friend-status-network
+
+  redis-node-5:
+    image: redis:7-alpine
+    container_name: redis-node-5
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7005:6379"
+      - "17005:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-5-data:/data
+    environment:
+      - REDIS_NODE_ID=5
+    networks:
+      - friend-status-network
+
+  redis-node-6:
+    image: redis:7-alpine
+    container_name: redis-node-6
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "7006:6379"
+      - "17006:16379"
+    volumes:
+      - ./redis-cluster.conf:/usr/local/etc/redis/redis.conf
+      - redis-node-6-data:/data
+    environment:
+      - REDIS_NODE_ID=6
+    networks:
+      - friend-status-network
+
+  # Redis Cluster 초기화 컨테이너
+  redis-cluster-init:
+    image: redis:7-alpine
+    container_name: redis-cluster-init
+    command: >
+      sh -c "
+        sleep 10 &&
+        redis-cli --cluster create 
+        redis-node-1:6379 redis-node-2:6379 redis-node-3:6379 
+        redis-node-4:6379 redis-node-5:6379 redis-node-6:6379 
+        --cluster-replicas 1 --cluster-yes
+      "
+    depends_on:
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+      - redis-node-6
+    networks:
+      - friend-status-network
+
+  # WebSocket 서버 클러스터
+  websocket-server-1:
+    build: .
+    container_name: websocket-server-1
+    ports:
+      - "3001:3000"
+    environment:
+      - SERVER_ID=websocket-server-1
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
+      - PORT=3000
+    depends_on:
+      - redis-cluster-init
+    networks:
+      - friend-status-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  websocket-server-2:
+    build: .
+    container_name: websocket-server-2
+    ports:
+      - "3002:3000"
+    environment:
+      - SERVER_ID=websocket-server-2
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
+      - PORT=3000
+    depends_on:
+      - redis-cluster-init
+    networks:
+      - friend-status-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  websocket-server-3:
+    build: .
+    container_name: websocket-server-3
+    ports:
+      - "3003:3000"
+    environment:
+      - SERVER_ID=websocket-server-3
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
+      - PORT=3000
+    depends_on:
+      - redis-cluster-init
+    networks:
+      - friend-status-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # Nginx 로드 밸런서
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-lb
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - websocket-server-1
+      - websocket-server-2
+      - websocket-server-3
+    networks:
+      - friend-status-network
+
+  # PostgreSQL 데이터베이스
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=friend_system
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secure_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - friend-status-network
+
+  # Redis 모니터링 (RedisInsight)
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    ports:
+      - "8001:8001"
+    volumes:
+      - redis-insight-data:/db
+    networks:
+      - friend-status-network
+
+  # 모니터링 시스템 (Prometheus + Grafana)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - friend-status-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - friend-status-network
+
+networks:
+  friend-status-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  redis-node-1-data:
+  redis-node-2-data:
+  redis-node-3-data:
+  redis-node-4-data:
+  redis-node-5-data:
+  redis-node-6-data:
+  postgres-data:
+  redis-insight-data:
+  prometheus-data:
+  grafana-data:
+
+ 
+ 

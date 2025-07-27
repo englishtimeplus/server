@@ -373,7 +373,7 @@ if (cluster.isMaster) {
   // 워커 프로세스
   const manager = new FriendOnlineStatusManager();
   manager.initializeWebSocketServer();
-  const port = process.env.PORT || (3000 + cluster.worker.id);
+  const port = process.env.PORT || (5555 + cluster.worker.id);
   manager.listen(port);
   
   console.log(`Worker ${process.pid} started`);

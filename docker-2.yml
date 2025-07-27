@@ -6,11 +6,11 @@ services:
     build: .
     container_name: websocket-server-1
     ports:
-      - "3001:3000"
+      - "3001:5555"
     environment:
       - SERVER_ID=websocket-server-1
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
-      - PORT=3000
+      - PORT=5555
     networks:
       - friend-status-network
 
@@ -18,11 +18,11 @@ services:
     build: .
     container_name: websocket-server-2
     ports:
-      - "3002:3000"
+      - "3002:5555"
     environment:
       - SERVER_ID=websocket-server-2
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
-      - PORT=3000
+      - PORT=5555
     networks:
       - friend-status-network
 
@@ -30,11 +30,11 @@ services:
     build: .
     container_name: websocket-server-3
     ports:
-      - "3003:3000"
+      - "3003:5555"
     environment:
       - SERVER_ID=websocket-server-3
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
-      - PORT=3000
+      - PORT=5555
     networks:
       - friend-status-network
 

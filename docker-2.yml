@@ -8,7 +8,7 @@ services:
       - "3001:5555"
     environment:
       - SERVER_ID=websocket-server-1
-      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
       - PORT=5555
     networks:
       - friend-status-network
@@ -20,7 +20,7 @@ services:
       - "3002:5555"
     environment:
       - SERVER_ID=websocket-server-2
-      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
       - PORT=5555
     networks:
       - friend-status-network
@@ -32,7 +32,7 @@ services:
       - "3003:5555"
     environment:
       - SERVER_ID=websocket-server-3
-      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379,redis-node-4:6379,redis-node-5:6379,redis-node-6:6379
       - PORT=5555
     networks:
       - friend-status-network

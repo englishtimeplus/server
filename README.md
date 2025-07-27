@@ -69,6 +69,7 @@ Prometheus + Grafana 메트릭
 💡 사용 방법
 bash# 시스템 시작
 ```
+클러스터는 총 6개 노드 (3 master + 3 replica) 필수
 docker 설치
 node 설치
 docker network create friend-status-network
@@ -84,6 +85,12 @@ sudo mkdir -p /var/log/redis
 npm install
 실행
 docker compose -f docker-1.yml up -d
+확인
+docker exec -it redis-node-1 redis-cli -p 6379 cluster info
+
+docker exec -it redis-node-1 redis-cli -p 6379 cluster nodes
+
+
 docker compose -f docker-2.yml up -d
 docker compose -f docker-3.yml up -d 
 # docker-compose up -d

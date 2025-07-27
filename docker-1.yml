@@ -77,6 +77,5 @@ networks:
 volumes:
   redis-node-1-data:
   redis-node-2-data:
-  redis-node-3-data:
-  postgres-data:
+  redis-node-3-data: 
   redis-insight-data:

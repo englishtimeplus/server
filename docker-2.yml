@@ -11,8 +11,6 @@ services:
       - SERVER_ID=websocket-server-1
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
       - PORT=3000
-    depends_on:
-      - redis-cluster-init
     networks:
       - friend-status-network
 
@@ -25,8 +23,6 @@ services:
       - SERVER_ID=websocket-server-2
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
       - PORT=3000
-    depends_on:
-      - redis-cluster-init
     networks:
       - friend-status-network
 
@@ -39,8 +35,6 @@ services:
       - SERVER_ID=websocket-server-3
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
       - PORT=3000
-    depends_on:
-      - redis-cluster-init
     networks:
       - friend-status-network
 

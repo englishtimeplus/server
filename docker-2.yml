@@ -8,14 +8,10 @@ services:
       - "3001:5555"
     environment:
       - SERVER_ID=websocket-server-1
-      - PORT=5555
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - PORT=5555
     networks:
       - friend-status-network
-    depends_on:
-      - redis-node-1
-      - redis-node-2
-      - redis-node-3
 
   websocket-server-2:
     build: .
@@ -24,14 +20,10 @@ services:
       - "3002:5555"
     environment:
       - SERVER_ID=websocket-server-2
-      - PORT=5555
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - PORT=5555
     networks:
       - friend-status-network
-    depends_on:
-      - redis-node-1
-      - redis-node-2
-      - redis-node-3
 
   websocket-server-3:
     build: .
@@ -40,11 +32,11 @@ services:
       - "3003:5555"
     environment:
       - SERVER_ID=websocket-server-3
-      - PORT=5555
       - REDIS_CLUSTER_NODES=redis-node-1:6379,redis-node-2:6379,redis-node-3:6379
+      - PORT=5555
     networks:
       - friend-status-network
-    depends_on:
-      - redis-node-1
-      - redis-node-2
-      - redis-node-3
+
+networks:
+  friend-status-network:
+    driver: bridge
